@@ -96,9 +96,9 @@
 -- 1. Create primary master table
 CREATE TABLE students (sid PRIMARY KEY, name, branch);
 
-INSERT INTO students VALUES (101, "Aemilia", "CS");
-INSERT INTO students VALUES (102, "Rahul", "IT");
-INSERT INTO students VALUES (103, "Hannah", "CS");
+INSERT INTO students VALUES (101, "Alice", "CS");
+INSERT INTO students VALUES (102, "Bob", "IT");
+INSERT INTO students VALUES (103, "Charlie", "CS");
 
 -- 2. Create secondary reference relational table
 CREATE TABLE grades (sid, subject, marks);
@@ -181,7 +181,6 @@ INNER JOIN grades ON students.sid == grades.sid;
                 let newRow = {};
                 table.columns.forEach((col, idx) => { newRow[col] = cleanValues[idx]; });
 
-                // Enforce primary key constraint validation checks
                 if (table.primaryKey) {
                     const pkVal = newRow[table.primaryKey];
                     const duplicate = table.rows.some(r => r[table.primaryKey] === pkVal);
@@ -193,14 +192,12 @@ INNER JOIN grades ON students.sid == grades.sid;
             }
 
             handleSelect(query) {
-                // High-performance parser matching standard selection projections or inner relational joins
                 const joinMatch = query.match(/SELECT\s+(.+)\s+FROM\s+(\w+)\s+INNER\s+JOIN\s+(\w+)\s+ON\s+(.+)\.(\w+)\s*==\s*(.+)\.(\w+)/i);
 
                 if (joinMatch) {
                     return this.processInnerJoin(joinMatch);
                 }
 
-                // Fallback process standard simple table selection filtering
                 const simpleMatch = query.match(/SELECT\s+(.+)\s+FROM\s+(\w+)(?:\s+WHERE\s+(.+))?/i);
                 if (!simpleMatch) throw new Error("SQL Parsing Exception: Invalid query layout specification.");
 
@@ -233,11 +230,9 @@ INNER JOIN grades ON students.sid == grades.sid;
                 const t2 = this.tables[t2Name];
                 let joinedRows = [];
 
-                // Execute standard nested loop join mapping matching criteria values keys
                 t1.rows.forEach(r1 => {
                     t2.rows.forEach(r2 => {
                         if (r1[table1Key] === r2[table2Key]) {
-                            // Merge schemas safely prefixing tracking domains identifiers
                             let combinedRow = {};
                             Object.keys(r1).forEach(k => combinedRow[`${t1Name}.${k}`] = r1[k]);
                             Object.keys(r2).forEach(k => combinedRow[`${t2Name}.${k}`] = r2[k]);
@@ -246,7 +241,6 @@ INNER JOIN grades ON students.sid == grades.sid;
                     });
                 });
 
-                // Project output fields explicitly filtered
                 const finalHeaders = fields.map(f => f.toLowerCase());
                 const finalRows = joinedRows.map(row => {
                     let out = {};
